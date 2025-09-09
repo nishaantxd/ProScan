@@ -412,9 +412,11 @@ def main_app():
         st.session_state.current_captcha = new_image
 
     # Display CAPTCHA
-    col1, col2, col3 = st.columns([2, 1, 1])
+    st.image(st.session_state.current_captcha, width=200)
+    
+    # CAPTCHA input and verification in one line
+    col1, col2, col3, col4 = st.columns([2, 0.8, 0.8, 1.2])
     with col1:
-        st.image(st.session_state.current_captcha, width=200)
         captcha_input = st.text_input(
             "Enter CAPTCHA text",
             key="captcha_question",
@@ -423,28 +425,24 @@ def main_app():
         )
     
     with col2:
-        if st.button("Verify CAPTCHA"):
+        if st.button("Verify", key="verify_captcha"):
             verify_captcha()
     
     with col3:
-        if st.button("New CAPTCHA"):
+        if st.button("Refresh", key="refresh_captcha"):
             reset_captcha_verification()
             st.rerun()
-
-    # Analysis Section
-    analyze_col1, analyze_col2 = st.columns([3, 1])
-    with analyze_col1:
-        analyze = st.button(
-            "Analyze Resume",
-            use_container_width=True,
-            disabled=not st.session_state.captcha_verified
-        )
     
-    with analyze_col2:
+    with col4:
         if st.session_state.captcha_verified:
             st.success("✅ Verified")
-        else:
-            st.error("⚠️ Verify CAPTCHA first")
+
+    # Analysis Section
+    analyze = st.button(
+        "Analyze Resume",
+        use_container_width=True,
+        disabled=not st.session_state.captcha_verified
+    )
 
     # If analyze button is clicked and CAPTCHA is verified
     if analyze and st.session_state.captcha_verified:
@@ -454,9 +452,6 @@ def main_app():
 
     # Resume Logic
     if analyze:
-        if captcha_answer.lower() != st.session_state.captcha_answer.lower():
-            st.error("Incorrect captcha answer.")
-            return
 
         if uploaded_file and jd_input:
             with st.spinner("Performing AI analysis... This may take a moment."):
