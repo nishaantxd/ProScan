@@ -50,3 +50,11 @@ htmlcov/
 backend/.env
 *.pem
 *.key
+
+# Streamlit secrets
+.streamlit/
+
+# Pre aws deployment
+Procfile
+SETUP.md
+.ebextensions/

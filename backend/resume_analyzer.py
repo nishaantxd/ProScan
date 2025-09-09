@@ -5,18 +5,21 @@ import streamlit as st
 
 # Get API key from Streamlit secrets or environment variables
 try:
-    try:
-        api_key = st.secrets["GOOGLE_API_KEY"]
-    except:
-        # Fallback to environment variable
-        api_key = os.environ.get("GOOGLE_API_KEY")
-    
-    if not api_key:
-        raise ValueError("GOOGLE_API_KEY not found in secrets or environment variables.")
+    # First try getting from Streamlit secrets
+    if 'GOOGLE_API_KEY' in st.secrets:
+        api_key = st.secrets['GOOGLE_API_KEY']
+    # Then try environment variable
+    elif os.environ.get('GOOGLE_API_KEY'):
+        api_key = os.environ.get('GOOGLE_API_KEY')
+    else:
+        st.error("⚠️ Google API Key not found. Please configure it in Streamlit secrets or environment variables.")
+        raise ValueError("GOOGLE_API_KEY not found")
+        
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel('gemini-1.5-flash')
+    
 except Exception as e:
-    print(f"Error configuring Generative AI: {e}")
+    st.error(f"⚠️ Error configuring AI: {str(e)}")
     model = None
 
 #constants
@@ -122,7 +125,6 @@ def get_semantic_analysis(resume_text: str, jd_text: str) -> dict:
         response = model.generate_content(prompt)
 
         # Clean the response to extract only the JSON part.
-        # The model might sometimes include backticks or the word "json".
         cleaned_response = response.text.strip().replace("```json", "").replace("```", "").strip()
 
         # Parse the JSON string into a Python dictionary
