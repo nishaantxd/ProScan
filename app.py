@@ -406,9 +406,6 @@ def main_app():
     uploaded_file = st.file_uploader("Upload your resume (PDF/DOCX)", type=["pdf", "docx"])
     jd_input = st.text_area("Job Description Input", height=200, placeholder="Paste Job Description here", label_visibility="hidden")
 
-    # CAPTCHA Section
-    st.markdown("### Security Verification")
-    
     # Generate new CAPTCHA if needed
     if not st.session_state.current_captcha:
         new_image, _ = generate_new_captcha()
