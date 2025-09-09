@@ -26,6 +26,39 @@ if "captcha_answer" not in st.session_state:
     st.session_state.captcha_answer = ""
 if "captcha_question" not in st.session_state:
     st.session_state.captcha_question = ""
+if "captcha_verified" not in st.session_state:
+    st.session_state.captcha_verified = False
+if "current_captcha" not in st.session_state:
+    st.session_state.current_captcha = ""
+
+# Captcha functions
+def generate_new_captcha():
+    """Generate a new CAPTCHA and store it in session state"""
+    image = ImageCaptcha(width=280, height=90)
+    # Generate a random string of 6 characters
+    captcha_text = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+    # Save the correct answer in session state
+    st.session_state.captcha_answer = captcha_text
+    # Generate the image
+    captcha_image = image.generate(captcha_text)
+    return captcha_image, captcha_text
+
+def verify_captcha():
+    """Verify the CAPTCHA input and update verification status"""
+    user_input = st.session_state.captcha_question.strip().upper()
+    correct_answer = st.session_state.captcha_answer.strip().upper()
+    st.session_state.captcha_verified = user_input == correct_answer
+    if not st.session_state.captcha_verified:
+        st.error("❌ Incorrect CAPTCHA. Please try again.")
+    else:
+        st.success("✅ CAPTCHA verified successfully!")
+
+def reset_captcha_verification():
+    """Reset CAPTCHA verification status and generate new CAPTCHA"""
+    st.session_state.captcha_verified = False
+    st.session_state.captcha_question = ""
+    new_image, new_text = generate_new_captcha()
+    st.session_state.current_captcha = new_image
 
 # Theme Toggle Button
 def toggle_theme():
@@ -373,26 +406,54 @@ def main_app():
     uploaded_file = st.file_uploader("Upload your resume (PDF/DOCX)", type=["pdf", "docx"])
     jd_input = st.text_area("Job Description Input", height=200, placeholder="Paste Job Description here", label_visibility="hidden")
 
-    # Captcha
-    if not st.session_state.captcha_question:
-        captcha_text = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
-        st.session_state.captcha_answer = captcha_text
-        st.session_state.captcha_question = captcha_text
-        image_captcha = ImageCaptcha()
-        st.session_state.captcha_image_data = image_captcha.generate(captcha_text)
+    # CAPTCHA Section
+    st.markdown("### Security Verification")
+    
+    # Generate new CAPTCHA if needed
+    if not st.session_state.current_captcha:
+        new_image, _ = generate_new_captcha()
+        st.session_state.current_captcha = new_image
 
-    st.image(st.session_state.captcha_image_data)
-
-    col1, col2 = st.columns([2, 1])
+    # Display CAPTCHA
+    col1, col2, col3 = st.columns([2, 1, 1])
     with col1:
-        captcha_answer = st.text_input("Enter the text from the image above", key="captcha_input", label_visibility="collapsed")
+        st.image(st.session_state.current_captcha, width=200)
+        captcha_input = st.text_input(
+            "Enter CAPTCHA text",
+            key="captcha_question",
+            label_visibility="collapsed",
+            placeholder="Enter the text shown above"
+        )
+    
     with col2:
-        if st.button("Refresh Captcha", key="refresh_captcha"):
-            st.session_state.captcha_question = ""
-            st.session_state.captcha_answer = ""
+        if st.button("Verify CAPTCHA"):
+            verify_captcha()
+    
+    with col3:
+        if st.button("New CAPTCHA"):
+            reset_captcha_verification()
             st.rerun()
 
-    analyze = st.button("Analyze Resume", use_container_width=True)
+    # Analysis Section
+    analyze_col1, analyze_col2 = st.columns([3, 1])
+    with analyze_col1:
+        analyze = st.button(
+            "Analyze Resume",
+            use_container_width=True,
+            disabled=not st.session_state.captcha_verified
+        )
+    
+    with analyze_col2:
+        if st.session_state.captcha_verified:
+            st.success("✅ Verified")
+        else:
+            st.error("⚠️ Verify CAPTCHA first")
+
+    # If analyze button is clicked and CAPTCHA is verified
+    if analyze and st.session_state.captcha_verified:
+        # Reset CAPTCHA for next analysis
+        reset_captcha_verification()
+        st.rerun()
 
     # Resume Logic
     if analyze:
