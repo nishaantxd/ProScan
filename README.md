@@ -2,6 +2,9 @@
 
 A sophisticated AI-powered resume analysis tool that leverages Google's Generative AI (Gemini) to provide in-depth resume analysis and job description comparison. Built with Streamlit, the application offers modern UI with light/dark mode support and CAPTCHA verification.
 
+**Live App**
+https://proscan.streamlit.app/
+
 ## Key Features
 
 ### AI-Powered Analysis
