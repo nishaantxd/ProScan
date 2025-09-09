@@ -1,24 +1,25 @@
 import google.generativeai as genai
 import os
 import json
-from dotenv import load_dotenv
+import streamlit as st
 
-# Load environment variables from .env file
-load_dotenv()
-
-# --- CONFIGURATION ---
-# The API key is now loaded from the .env file.
+# Get API key from Streamlit secrets or environment variables
 try:
-    api_key = os.environ.get("GOOGLE_API_KEY")
+    try:
+        api_key = st.secrets["GOOGLE_API_KEY"]
+    except:
+        # Fallback to environment variable
+        api_key = os.environ.get("GOOGLE_API_KEY")
+    
     if not api_key:
-        raise ValueError("GOOGLE_API_KEY not found in environment variables. Please create a .env file in the 'backend' directory.")
+        raise ValueError("GOOGLE_API_KEY not found in secrets or environment variables.")
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel('gemini-1.5-flash')
 except Exception as e:
     print(f"Error configuring Generative AI: {e}")
     model = None
 
-# --- CONSTANTS ---
+#constants
 # This is the master prompt that instructs the AI model.
 # It's designed to be robust and to return a clean JSON output.
 PROMPT_TEMPLATE = """

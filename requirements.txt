@@ -15,3 +15,5 @@ numpy
 captcha
 python-dotenv
 PyPDF2
+google-cloud-aiplatform
+google.generativeai
