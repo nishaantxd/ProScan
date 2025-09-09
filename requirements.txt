@@ -1,0 +1,17 @@
+streamlit
+PyMuPDF
+matplotlib
+scikit-learn
+pytesseract
+pdf2image
+Pillow
+transformers
+sentence-transformers
+keybert
+spacy
+pdfplumber
+python-docx
+numpy
+captcha
+python-dotenv
+PyPDF2
