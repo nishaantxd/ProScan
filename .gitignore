@@ -53,7 +53,7 @@ backend/.env
 
 # Streamlit secrets
 .streamlit/
-
+secrets.toml
 # Pre aws deployment
 Procfile
 SETUP.md
