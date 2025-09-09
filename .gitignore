@@ -53,8 +53,11 @@ backend/.env
 
 # Streamlit secrets
 .streamlit/
-secrets.toml
+secrets.toml/
+
 # Pre aws deployment
 Procfile
 SETUP.md
+DEPLOY_EB.md
+CUSTOM_DOMAIN_SETUP.md
 .ebextensions/
